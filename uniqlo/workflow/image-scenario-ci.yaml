@@ -1,0 +1,51 @@
+name: uniqlo-ci-workflow
+
+on:
+  push:
+  workflow_call:
+
+env:
+  PROJECT_PATH: uniqlo/image-scenario
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.8
+    defaults:
+      run:
+        working-directory: ${{ env.PROJECT_PATH }}
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+      
+    - name: Load Package Cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ env.PROJECT_PATH }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-dev.txt') }}
+        restore-keys: |
+          pip-${{ env.PROJECT_PATH }}-
+
+    - name: Make Cache Directory
+      if: steps.cache-primes.outputs.cache-hit != 'true'
+      run: mkdir -p ~/.cache/pip
+
+    - name: Package Install
+      run: pip install -r requirements.txt -r requirements-dev.txt
+
+    - name: Check Lint
+      run: |
+        black --check .
+        flake8 .
+        isort -c .
+    
+    - name: Run Test
+      run: |
+        pytest --cov-branch --cov
+      
+    - name: Check Git Convention
+      run: |
+        curl -sSL https://scatterlab-ci-scripts.s3.ap-northeast-2.amazonaws.com/branch_name_checker.sh | bash
+        curl -sSL https://scatterlab-ci-scripts.s3.ap-northeast-2.amazonaws.com/commit_message_checker.sh | bash

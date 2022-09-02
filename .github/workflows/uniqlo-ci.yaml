@@ -1,0 +1,15 @@
+name: uniqlo-ci-workflow
+
+on:
+  push:
+    paths:
+      - uniqlo/**
+    branches-ignore:
+      - master
+      - refs/tags/*
+  workflow_dispatch:
+
+jobs:
+  image-scenario:
+    uses: ./uniqlo/workflow/uniqlo-ci.yaml
+  

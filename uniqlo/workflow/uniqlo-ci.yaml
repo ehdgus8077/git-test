@@ -1,0 +1,10 @@
+name: uniqlo-ci-workflow
+
+on:
+  push:
+  workflow_call:
+
+jobs:
+  image-scenario:
+    uses: ./image-scenario-ci.yaml
+  

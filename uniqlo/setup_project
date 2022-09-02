@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ $# != 1 ]
+then
+    echo "[-] $0 [PROJECT-NAME]"
+    echo "[-] 한 개의 인자로 생성할 프로젝트명을 입력해야합니다."
+    exit 1
+fi
+
+PROJECT_NAME=$1
+
+if test -e "$PROJECT_NAME"; then
+    echo "[-] 프로젝트 ${PROJECT_NAME}이 이미 존재합니다."
+    exit 1
+fi
+
+# 프로젝트 폴더 생성
+cp -r template ${PROJECT_NAME}
+echo "[+] 프로젝트 폴더 생성 완료"
+
+# CI 세팅
+cp .github/workflows/template-ci.yaml .github/workflows/${PROJECT_NAME}-ci.yaml
+sed -i 's/template/'"${PROJECT_NAME}"'/' .github/workflows/${PROJECT_NAME}-ci.yaml
+echo "[+] 프로젝트 CI 파일 생성 완료"
